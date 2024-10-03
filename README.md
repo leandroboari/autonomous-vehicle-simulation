@@ -6,7 +6,7 @@
 - Autor: Leandro Boari Naves Silva
 
 ## Visão Geral
-Este repositório armazena o código de uma aplicação de simulação de veículos autônomos desenvolvida para um projeto da disciplina de Automação Avançada. A simulação inclui múltiplos carros navegando por uma pista com sensores integrados para detectar obstáculos, evitar colisões e contar voltas.
+Este repositório armazena o código de uma aplicação de simulação de veículos autônomos como parte da disciplina de Automação Avançada. A simulação inclui múltiplos carros navegando por uma pista com sensores integrados para detectar os limites da pista e contornar obstáculos.
 
 ## Funcionalidades
 - Simulação com Vários Carros: Simula múltiplos carros em uma pista, com cada veículo movendo-se pixel a pixel e rastreando a distância percorrida.
