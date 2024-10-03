@@ -1,9 +1,9 @@
 # Simulação de Veículos Autônomos
 
-Disciplina: Automação Avançada
-Curso: Engenharia de Controle e Automação
-Autor: Leandro Boari Naves Silva
-Professor: Arthur de Miranda Neto
+Disciplina: Automação Avançada\n
+Curso: Engenharia de Controle e Automação\n
+Autor: Leandro Boari Naves Silva\n
+Professor: Arthur de Miranda Neto\n
 
 ## Visão Geral
 Este repositório contém uma simulação de veículos autônomos desenvolvida para um projeto da disciplina de Automação Avançada. A simulação inclui múltiplos carros navegando por uma pista com sensores integrados para detectar obstáculos, evitar colisões e contar voltas.
