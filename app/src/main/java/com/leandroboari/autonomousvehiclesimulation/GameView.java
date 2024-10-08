@@ -30,7 +30,7 @@ public class GameView extends SurfaceView implements Runnable {
         init(context);
     }
 
-    private void init(Context context) {
+    public void init(Context context) {
         surfaceHolder = getHolder();
 
         // Inicializa o tempo de início

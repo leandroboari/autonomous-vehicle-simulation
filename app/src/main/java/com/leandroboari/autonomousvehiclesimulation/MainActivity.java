@@ -10,9 +10,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        gameView = new GameView(this);
-        setContentView(gameView); // Define nossa custom view como o layout da atividade.
+
+        // Infla o layout XML em vez de usar o GameView diretamente
+        setContentView(R.layout.activity_main);
+
+        // Recupera a referência ao GameView do layout
+        gameView = findViewById(R.id.game_view);
+
+        // Inicializa o GameView (isso pode ser feito no GameView diretamente)
+        gameView.init(this);
     }
+
 
     @Override
     protected void onResume() {
