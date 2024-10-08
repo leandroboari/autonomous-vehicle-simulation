@@ -120,6 +120,12 @@ public class GameView extends SurfaceView implements Runnable {
         int baseY = 30;
         int lineSpacing = 20;
 
+        // Exibir FPS e tempo decorrido
+        canvas.drawText("FPS: " + fps, 10, baseY, infoPaint);
+        canvas.drawText("Tempo: " + elapsedTime + "s", 10, baseY + lineSpacing, infoPaint);
+
+        baseY = 90;
+
         // Desenha informações para cada carro
         for (int i = 0; i < cars.size(); i++) {
             Car car = cars.get(i);
@@ -133,12 +139,10 @@ public class GameView extends SurfaceView implements Runnable {
             canvas.drawText("Velocidade: " + car.getSpeed() + "px/s", 10, baseY + 3 * lineSpacing, infoPaint);
 
             // Ajusta a posição Y para exibir o próximo carro
-            baseY += 4 * lineSpacing;
+            baseY += 5 * lineSpacing;
         }
 
-        // Exibir FPS e tempo decorrido
-        canvas.drawText("FPS: " + fps, 10, baseY, infoPaint);
-        canvas.drawText("Tempo: " + elapsedTime + "s", 10, baseY + lineSpacing, infoPaint);
+
     }
 
     public void resume() {
