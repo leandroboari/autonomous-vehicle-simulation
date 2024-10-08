@@ -1,5 +1,7 @@
 package com.leandroboari.autonomousvehiclesimulation;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -7,41 +9,48 @@ import android.graphics.RectF;
 
 public class Car extends Thread {
 
-    private float x, y, angle, speed;
-    private float[] sensorMap = new float[9]; // Distâncias detectadas pelos sensores.
-    private float[] sensorAngles = {0, 15, 30, 45, 60, 300, 315, 330, 345};
+    private float x;
+    private float y;
+    private float angle;
+    private final float speed;
+    private final float[] sensorMap = new float[9]; // Distâncias detectadas pelos sensores.
+    private final float[] sensorAngles = {0, 15, 30, 45, 60, 300, 315, 330, 345};
     private boolean running = true;
-    private GameView gameView;
-    private Paint carPaint, sensorPaint;
-    private PIDController pidController;
+    private final GameView gameView;
+    private final Paint sensorPaint;
+    private final PIDController pidController;
+
+    private final Bitmap carBitmap; // Bitmap para a imagem do carro
+    private final int carWidth, carHeight; // Dimensões do carro
 
     // Contadores e variáveis para distância e voltas
-    private float totalDistanceMoved = 0;
+    private int totalDistanceMoved = 0;
     private float previousX, previousY;
     private int lapCount = 0;
     private boolean crossedLine = false; // Controle para verificar se o carro cruzou a linha de chegada
 
-    private final RectF startLine; // Definição da linha de largada para contagem de voltas
-
-    public Car(GameView gameView, float x, float y, float angle, float speed, PIDController pidController) {
+    public Car(GameView gameView, float x, float y, float angle, float speed) {
         this.x = x;
         this.y = y;
         this.angle = angle;
-        this.speed = speed;
+        this.speed = speed; // Velocidade em pixels por frame
         this.gameView = gameView;
-        this.pidController = pidController;
-
         this.previousX = x;
         this.previousY = y;
 
-        // Definir a linha de largada com base na pista
-        this.startLine = new RectF(573, 404, 627, 478); // Ajuste para a posição da sua linha de largada
+        // Definir PID controller
+        this.pidController = new PIDController(0.8f, 0.01f, 0.1f);
 
-        carPaint = new Paint();
-        carPaint.setColor(Color.BLUE); // Cor do carro
+        // Carrega o bitmap da imagem do carro
+        carBitmap = BitmapFactory.decodeResource(gameView.getContext().getResources(), R.drawable.carro);
+
+        // Define a largura e altura do carro
+        carWidth = carBitmap.getWidth();
+        carHeight = carBitmap.getHeight();
+
         sensorPaint = new Paint();
         sensorPaint.setColor(Color.RED); // Cor dos sensores
-        sensorPaint.setStrokeWidth(2);
+        sensorPaint.setStrokeWidth(1);
     }
 
     @Override
@@ -50,7 +59,7 @@ public class Car extends Thread {
             moveCar();
             gameView.postInvalidate(); // Atualiza o desenho na tela
             try {
-                Thread.sleep(16); // Simula um frame rate de ~60 FPS (não é necessário um FPS controlado rigorosamente).
+                Thread.sleep(16); // Simula um frame rate de ~60 FPS
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -69,8 +78,11 @@ public class Car extends Thread {
 
         // Só atualiza a posição se não houver colisão
         if (!gameView.isCollision(newX, newY)) {
+
             // Atualiza a distância total percorrida
-            totalDistanceMoved += Math.sqrt(Math.pow(newX - previousX, 2) + Math.pow(newY - previousY, 2));
+            double calcPreviousX = Math.pow(newX - previousX, 2);
+            double calcPreviousY = Math.pow(newY - previousY, 2);
+            totalDistanceMoved += (int) Math.sqrt(calcPreviousX + calcPreviousY);
             previousX = newX;
             previousY = newY;
 
@@ -88,6 +100,34 @@ public class Car extends Thread {
         checkLap();
     }
 
+    public void draw(Canvas canvas) {
+        // Desenha o carro usando a imagem (Bitmap)
+        canvas.save();
+        canvas.rotate(angle, x, y); // Rotaciona o carro baseado no ângulo
+
+        // Desenha o bitmap do carro no centro do carro (ajustado para que o centro do bitmap seja
+        // o ponto de rotação)
+        canvas.drawBitmap(
+                carBitmap,
+                x - carWidth / 2,
+                y - carHeight / 2,
+                null
+        );
+
+        canvas.restore();
+
+        // Desenha os sensores em vermelho
+        for (int i = 0; i < sensorAngles.length; i++) {
+            float sensorAngle = angle + sensorAngles[i]; // Ângulo do sensor em relação ao carro
+            float radians = (float) Math.toRadians(sensorAngle);
+            float endX = x + sensorMap[i] * (float) Math.cos(radians); // Posição final X do sensor
+            float endY = y + sensorMap[i] * (float) Math.sin(radians); // Posição final Y do sensor
+
+            // Desenha a linha do sensor
+            canvas.drawLine(x, y, endX, endY, sensorPaint);
+        }
+    }
+
     private void updateSensors() {
         // Atualiza os sensores verificando a distância para as bordas ou obstáculos.
         for (int i = 0; i < sensorAngles.length; i++) {
@@ -96,7 +136,7 @@ public class Car extends Thread {
     }
 
     private float calculateDistanceForSensor(float sensorAngle) {
-        float maxDistance = 100; // Alcance máximo do sensor
+        float maxDistance = 50; // Alcance máximo do sensor
         float radians = (float) Math.toRadians(angle + sensorAngle);
         float dx = (float) Math.cos(radians);
         float dy = (float) Math.sin(radians);
@@ -122,26 +162,8 @@ public class Car extends Thread {
         return rightAvg - leftAvg;
     }
 
-    public void draw(Canvas canvas) {
-        // Desenha o carro como um retângulo.
-        RectF carRect = new RectF(x - 20, y - 10, x + 20, y + 10);
-        canvas.save();
-        canvas.rotate(angle, x, y);
-        canvas.drawRect(carRect, carPaint);
-        canvas.restore();
-
-        // Desenha os sensores
-        for (int i = 0; i < sensorAngles.length; i++) {
-            float sensorAngle = angle + sensorAngles[i];
-            float radians = (float) Math.toRadians(sensorAngle);
-            float endX = x + sensorMap[i] * (float) Math.cos(radians);
-            float endY = y + sensorMap[i] * (float) Math.sin(radians);
-            canvas.drawLine(x, y, endX, endY, sensorPaint);
-        }
-    }
-
-    // Método para verificar se o carro cruzou a linha de chegada
     private void checkLap() {
+        RectF startLine = new RectF(gameView.getTrack().getStartLineRect());
         if (startLine.contains(x, y)) {
             if (!crossedLine) {
                 lapCount++;
@@ -152,17 +174,14 @@ public class Car extends Thread {
         }
     }
 
-    // Método para obter a distância total percorrida
-    public float getTotalDistanceMoved() {
+    public int getTotalDistanceMoved() {
         return totalDistanceMoved;
     }
 
-    // Método para obter o número de voltas
     public int getLapCount() {
         return lapCount;
     }
 
-    // Método para obter a velocidade atual
     public float getSpeed() {
         return speed;
     }

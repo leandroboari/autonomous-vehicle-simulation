@@ -15,8 +15,8 @@ public class GameView extends SurfaceView implements Runnable {
     private Thread gameThread;
     private SurfaceHolder surfaceHolder;
     private boolean running = false;
-    private PIDController pidController;
-    private long startTime;
+    private long startTime, lastFrameTime;
+    private int fps;
 
     public GameView(Context context) {
         super(context);
@@ -33,19 +33,47 @@ public class GameView extends SurfaceView implements Runnable {
 
         // Inicializa o tempo de início
         startTime = System.currentTimeMillis();
+        lastFrameTime = System.currentTimeMillis();
 
         // Carrega a pista e define a linha de largada/chegada
-        track = new Track(context, R.drawable.pista, 573, 404, 627, 478); // Exemplo de uso com uma imagem de pista
+        int trackWidth = 800;
+        int trackHeight = 600;
+        track = new Track(
+                context,
+                R.drawable.pista,
+                trackWidth,
+                trackHeight,
+                684,
+                347,
+                736,
+                402
+        );
 
-        // Inicia o carro e o controlador PID
-        pidController = new PIDController(0.8f, 0.01f, 0.1f);
-        car = new Car(this, 400, 400, 0, 5, pidController); // Inicia o carro em uma posição fixa
+        // Inicia o carro
+        car = new Car(
+                this,
+                683,
+                381,
+                -20,
+                5
+        );
     }
 
     @Override
     public void run() {
         while (running) {
             if (surfaceHolder.getSurface().isValid()) {
+                long currentTime = System.currentTimeMillis();
+                long frameTime = currentTime - lastFrameTime; // Tempo entre frames
+
+                // Calcular o FPS (se o frameTime for maior que 0 para evitar divisão por zero)
+                if (frameTime > 0) {
+                    fps = (int) (1000 / frameTime);
+                }
+
+                lastFrameTime = currentTime; // Atualiza o tempo do último frame
+
+                // Bloqueia o canvas e começa a desenhar
                 Canvas canvas = surfaceHolder.lockCanvas();
                 canvas.drawRGB(255, 255, 255); // Fundo branco
 
@@ -55,9 +83,10 @@ public class GameView extends SurfaceView implements Runnable {
                 // Desenha o carro
                 car.draw(canvas);
 
-                // Desenha as informações sobre o carro (tempo, distância, voltas)
+                // Desenha as informações sobre o carro (tempo, distância, voltas e FPS)
                 drawInfo(canvas);
 
+                // Libera o canvas após desenhar
                 surfaceHolder.unlockCanvasAndPost(canvas);
             }
         }
@@ -67,22 +96,22 @@ public class GameView extends SurfaceView implements Runnable {
     private void drawInfo(Canvas canvas) {
         Paint infoPaint = new Paint();
         infoPaint.setColor(Color.GRAY);
-        infoPaint.setTextSize(40);
+        infoPaint.setTextSize(18);
 
         // Calcula e desenha as informações
         long currentTime = System.currentTimeMillis();
-        float elapsedTime = (currentTime - startTime) / 1000f; // Tempo decorrido em segundos
-        float distanceMoved = car.getTotalDistanceMoved(); // Distância total percorrida pelo carro
+        int elapsedTime = (int) ((currentTime - startTime) / 1000f); // Tempo decorrido em segundos
+        int distanceMoved = car.getTotalDistanceMoved(); // Distância total percorrida pelo carro
         int laps = car.getLapCount(); // Número de voltas
 
         // Exibe as informações na tela
+        canvas.drawText("FPS: " + fps, 10, 30, infoPaint);
         canvas.drawText("Tempo: " + elapsedTime + "s", 10, 50, infoPaint);
-        canvas.drawText("Distância: " + distanceMoved + "px", 10, 100, infoPaint);
-        canvas.drawText("Voltas: " + laps, 10, 150, infoPaint);
-        canvas.drawText("Velocidade: " + car.getSpeed() + "px/s", 10, 200, infoPaint);
+        canvas.drawText("Distância: " + distanceMoved + "px", 10, 70, infoPaint);
+        canvas.drawText("Voltas: " + laps, 10, 90, infoPaint);
+        canvas.drawText("Velocidade: " + car.getSpeed() + "px/s", 10, 110, infoPaint);
     }
 
-    // Função para retomar o jogo
     public void resume() {
         running = true;
         gameThread = new Thread(this);
@@ -90,7 +119,6 @@ public class GameView extends SurfaceView implements Runnable {
         car.start(); // Inicia a thread do carro
     }
 
-    // Função para pausar o jogo
     public void pause() {
         running = false;
         car.stopCar(); // Para a thread do carro
@@ -101,9 +129,12 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    // Verifica se o carro está colidindo com algo na pista
     public boolean isCollision(float x, float y) {
-        // Verifica se o carro está colidindo com a pista
+        // Verifica se o carro está colidindo com algo na pista
         return track.isCollision(x, y);
+    }
+
+    public Track getTrack() {
+        return track;
     }
 }
