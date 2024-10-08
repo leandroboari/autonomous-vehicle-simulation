@@ -171,6 +171,7 @@ public class GameView extends SurfaceView implements Runnable {
         try {
             gameThread.join();
         } catch (InterruptedException e) {
+            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }

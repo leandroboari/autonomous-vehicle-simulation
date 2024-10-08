@@ -12,11 +12,11 @@ public class Car extends Thread {
     private float y;
     private float angle;
     private float speed;
-    private float minSpeed;
-    private float maxSpeed;
-    private float detectionDistance;
-    private int fuelTank;
-    private int penalty;
+    private final float minSpeed;
+    private final float maxSpeed;
+    private final float detectionDistance;
+//    private int fuelTank;
+//    private int penalty;
     private final float[] sensorMap = new float[9]; // Distâncias detectadas pelos sensores.
     private final float[] sensorAngles = {0, 15, 30, 45, 60, 300, 315, 330, 345};
     private boolean running = true;
@@ -32,7 +32,9 @@ public class Car extends Thread {
     private int totalDistanceMoved = 0;
     private float previousX, previousY;
     private int lapCount = 0;
-    private boolean crossedLine = false; // Controle para verificar se o carro cruzou a linha de chegada
+
+    // Controle para verificar se o carro cruzou a linha de chegada
+    private boolean crossedLine = false;
 
     public Car(
             GameView gameView,
@@ -62,7 +64,10 @@ public class Car extends Thread {
         this.speedPIDController = new PIDController(0.5f, 0.01f, 0.1f);
 
         // Carrega o bitmap da imagem do carro
-        Bitmap originalBitmap = BitmapFactory.decodeResource(gameView.getContext().getResources(), R.drawable.carro);
+        Bitmap originalBitmap = BitmapFactory.decodeResource(
+                gameView.getContext().getResources(),
+                R.drawable.carro
+        );
 
         // Redimensiona o carro para um tamanho menor, por exemplo, 50% do tamanho original
         int newWidth = 20;  // Reduz para 50% da largura
@@ -84,8 +89,10 @@ public class Car extends Thread {
             moveCar();
             gameView.postInvalidate(); // Atualiza o desenho na tela
             try {
+                //noinspection BusyWait
                 Thread.sleep(16); // Simula um frame rate de ~60 FPS
             } catch (InterruptedException e) {
+                //noinspection CallToPrintStackTrace
                 e.printStackTrace();
             }
         }
@@ -135,7 +142,7 @@ public class Car extends Thread {
         // Define a zona morta para a rotação ser insignificante (reta)
         float deadZone = 2;
 
-        // Se a rotação for maior que a zona morta, desacelere (curva), caso contrário, acelere (reta)
+        // Se a rotação for maior que a zona morta, desacelere (curva), caso contrário, acelere
         float targetSpeed;
         if (Math.abs(correction) > deadZone) {
             targetSpeed = minSpeed; // Velocidade mínima nas curvas

@@ -13,25 +13,49 @@ public class Track {
     private final Bitmap trackBitmap;
     private final Rect startLine; // A linha de partida/chegada da pista
     private final Paint linePaint;
-    private final int trackWidth, trackHeight; // Largura e altura desejadas da pista em pixels
+    private final int trackWidth, trackHeight; // Largura e altura desejadas da pista
 
-    public Track(Context context, int trackResourceId, int trackWidth, int trackHeight, int startLineX1, int startLineY1, int startLineX2, int startLineY2) {
+    public Track(
+            Context context,
+            int trackResourceId,
+            int trackWidth,
+            int trackHeight,
+            int startLineX1,
+            int startLineY1,
+            int startLineX2,
+            int startLineY2
+    ) {
         // Define a largura e altura da pista em pixels reais
         this.trackWidth = trackWidth;
         this.trackHeight = trackHeight;
 
         // Carrega a imagem da pista a partir de recursos.
-        Bitmap originalBitmap = BitmapFactory.decodeResource(context.getResources(), trackResourceId);
+        Bitmap originalBitmap = BitmapFactory.decodeResource(
+                context.getResources(),
+                trackResourceId
+        );
 
         // Redimensiona o bitmap para o tamanho especificado (trackWidth x trackHeight)
-        trackBitmap = Bitmap.createScaledBitmap(originalBitmap, trackWidth, trackHeight, false);
+        trackBitmap = Bitmap.createScaledBitmap(
+                originalBitmap,
+                trackWidth,
+                trackHeight,
+                false
+        );
 
-        // Define as coordenadas da linha de largada/chegada com pixels reais (sem redimensionamento)
-        startLine = new Rect(startLineX1, startLineY1, startLineX2, startLineY2);
+        // Define as coordenadas da linha de largada/chegada
+        startLine = new Rect(
+                startLineX1,
+                startLineY1,
+                startLineX2,
+                startLineY2
+        );
 
-        // Inicializa a pintura da linha de largada/chegada.
+        // Inicializa a pintura da linha de largada/chegada
         linePaint = new Paint();
-        linePaint.setColor(ContextCompat.getColor(context, android.R.color.holo_green_dark)); // Cor da linha verde.
+
+        // Cor da linha verde.
+        linePaint.setColor(ContextCompat.getColor(context, android.R.color.holo_green_dark));
         linePaint.setStrokeWidth(5); // Espessura da linha.
     }
 
@@ -40,7 +64,13 @@ public class Track {
         canvas.drawBitmap(trackBitmap, 0, 0, null);
 
         // Desenha a linha de largada/chegada com pixels reais
-        canvas.drawLine(startLine.left, startLine.top, startLine.right, startLine.bottom, linePaint);
+        canvas.drawLine(
+                startLine.left,
+                startLine.top,
+                startLine.right,
+                startLine.bottom,
+                linePaint
+        );
     }
 
     public boolean isCollision(float x, float y) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -14,9 +15,9 @@
             android:layout_width="800px"
             android:layout_height="600px"
             android:layout_marginTop="10dp"
-            android:layout_gravity="center_horizontal"/>
+            android:layout_gravity="center_horizontal"
+            tools:ignore="PxUsage" />
 
-        <!-- Botões para controlar a simulação -->
         <LinearLayout
             android:id="@+id/button_container"
             android:layout_width="match_parent"
@@ -25,28 +26,30 @@
             android:layout_marginTop="10dp"
             android:gravity="center">
 
-            <!-- Botão Start -->
             <Button
-                android:id="@+id/button_start"
+                android:id="@+id/button_add_car"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Começar" />
+                android:layout_marginHorizontal="5dp"
+                android:text="Novo Carro"
+                tools:ignore="ButtonStyle,HardcodedText" />
 
-            <!-- Botão Pause -->
             <Button
-                android:id="@+id/button_pause"
+                android:id="@+id/button_control"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Pausar"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp" />
+                android:layout_marginHorizontal="5dp"
+                android:text="Começar"
+                tools:ignore="ButtonStyle,HardcodedText" />
 
-            <!-- Botão Finish -->
             <Button
                 android:id="@+id/button_finish"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Finalizar" />
+                android:layout_marginHorizontal="5dp"
+                android:text="Finalizar"
+                tools:ignore="ButtonStyle,HardcodedText" />
+
         </LinearLayout>
 
     </LinearLayout>
