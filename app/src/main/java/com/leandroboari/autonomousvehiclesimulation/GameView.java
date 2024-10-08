@@ -56,20 +56,26 @@ public class GameView extends SurfaceView implements Runnable {
 
         // Carro 1
         cars.add(new Car(
-            this,
-            683,
-            381,
-            -20,
-            4
+                this,
+                683,
+                381,
+                -20,
+                4,
+                1,
+                8,
+                50
         ));
 
         // Carro 2
         cars.add(new Car(
-            this,
-            700,
-            399,
-            -20,
-            4
+                this,
+                700,
+                399,
+                -20,
+                4,
+                1,
+                8,
+                50
         ));
     }
 
@@ -111,20 +117,23 @@ public class GameView extends SurfaceView implements Runnable {
     private void drawInfo(Canvas canvas) {
         Paint infoPaint = new Paint();
         infoPaint.setColor(Color.GRAY);
-        infoPaint.setTextSize(18);
+        infoPaint.setTextSize(16);
 
         long currentTime = System.currentTimeMillis();
         int elapsedTime = (int) ((currentTime - startTime) / 1000f);
 
         // Variável de controle para posicionar o texto na tela
-        int baseY = 30;
-        int lineSpacing = 20;
+        int lineSpacing = 18;
+        int marginSpacing = 6;
+        int baseY = marginSpacing + lineSpacing;
 
         // Exibir FPS e tempo decorrido
-        canvas.drawText("FPS: " + fps, 10, baseY, infoPaint);
-        canvas.drawText("Tempo: " + elapsedTime + "s", 10, baseY + lineSpacing, infoPaint);
+        canvas.drawText("FPS: " + fps, marginSpacing, baseY, infoPaint);
 
-        baseY = 90;
+        baseY = baseY + lineSpacing;
+        canvas.drawText("Tempo: " + elapsedTime + "s", marginSpacing, baseY, infoPaint);
+
+        baseY = baseY + lineSpacing + marginSpacing;
 
         // Desenha informações para cada carro
         for (int i = 0; i < cars.size(); i++) {
@@ -132,17 +141,17 @@ public class GameView extends SurfaceView implements Runnable {
             int distanceMoved = car.getTotalDistanceMoved();
             int laps = car.getLapCount();
 
+            int velocidade = (int) car.getSpeed();
+
             // Informações do carro na tela
-            canvas.drawText("Carro " + (i + 1) + ":", 10, baseY, infoPaint);
-            canvas.drawText("Distância: " + distanceMoved + "px", 10, baseY + lineSpacing, infoPaint);
-            canvas.drawText("Voltas: " + laps, 10, baseY + 2 * lineSpacing, infoPaint);
-            canvas.drawText("Velocidade: " + car.getSpeed() + "px/s", 10, baseY + 3 * lineSpacing, infoPaint);
+            canvas.drawText("Carro " + (i + 1) + ":", marginSpacing, baseY, infoPaint);
+            canvas.drawText("Distância: " + distanceMoved + "px", marginSpacing, baseY + lineSpacing, infoPaint);
+            canvas.drawText("Voltas: " + laps, marginSpacing, baseY + 2 * lineSpacing, infoPaint);
+            canvas.drawText("Velocidade: " + velocidade + "px/s", marginSpacing, baseY + 3 * lineSpacing, infoPaint);
 
             // Ajusta a posição Y para exibir o próximo carro
-            baseY += 5 * lineSpacing;
+            baseY += (4 * lineSpacing) + marginSpacing;
         }
-
-
     }
 
     public void resume() {
@@ -166,15 +175,15 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    public List<Car> getCars() {
+        return cars;
+    }
+
     public boolean isCollision(float x, float y) {
         return track.isCollision(x, y);
     }
 
     public Track getTrack() {
         return track;
-    }
-
-    public List<Car> getCars() {
-        return cars;
     }
 }

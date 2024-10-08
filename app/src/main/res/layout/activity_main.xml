@@ -12,8 +12,7 @@
         <!-- Layout da pista -->
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp">
+            android:layout_height="wrap_content">
 
             <com.leandroboari.autonomousvehiclesimulation.GameView
                 android:id="@+id/game_view"
@@ -28,8 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginTop="16dp">
+            android:gravity="center">
 
             <!-- Botão Start -->
             <Button
