@@ -13,6 +13,8 @@ public class Car extends Thread {
     private float y;
     private float angle;
     private final float speed;
+    private int fuelTank;
+    private int penalty;
     private final float[] sensorMap = new float[9]; // Distâncias detectadas pelos sensores.
     private final float[] sensorAngles = {0, 15, 30, 45, 60, 300, 315, 330, 345};
     private boolean running = true;
@@ -109,8 +111,8 @@ public class Car extends Thread {
         // o ponto de rotação)
         canvas.drawBitmap(
                 carBitmap,
-                x - carWidth / 2,
-                y - carHeight / 2,
+                x - (float) carWidth / 2,
+                y - (float) carHeight / 2,
                 null
         );
 

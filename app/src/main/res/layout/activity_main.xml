@@ -1,12 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.leandroboari.autonomousvehiclesimulation.CarGameView
-        android:id="@+id/carGameView"
+    <!-- LinearLayout para agrupar GameView e botões -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
-</LinearLayout>
+        <!-- Layout da pista -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp">
+
+            <com.leandroboari.autonomousvehiclesimulation.GameView
+                android:id="@+id/game_view"
+                android:layout_width="800px"
+                android:layout_height="600px"
+                android:layout_gravity="center_horizontal"/>
+        </LinearLayout>
+
+        <!-- Botões para controlar a simulação -->
+        <LinearLayout
+            android:id="@+id/button_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <!-- Botão Start -->
+            <Button
+                android:id="@+id/button_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Start" />
+
+            <!-- Botão Pause -->
+            <Button
+                android:id="@+id/button_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pause"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp" />
+
+            <!-- Botão Finish -->
+            <Button
+                android:id="@+id/button_finish"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Finish" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

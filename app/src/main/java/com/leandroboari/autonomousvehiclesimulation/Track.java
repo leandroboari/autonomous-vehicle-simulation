@@ -10,11 +10,10 @@ import android.graphics.Rect;
 import androidx.core.content.ContextCompat;
 
 public class Track {
-
-    private Bitmap trackBitmap;
-    private Rect startLine; // A linha de partida/chegada da pista
-    private Paint linePaint;
-    private int trackWidth, trackHeight; // Largura e altura desejadas da pista em pixels
+    private final Bitmap trackBitmap;
+    private final Rect startLine; // A linha de partida/chegada da pista
+    private final Paint linePaint;
+    private final int trackWidth, trackHeight; // Largura e altura desejadas da pista em pixels
 
     public Track(Context context, int trackResourceId, int trackWidth, int trackHeight, int startLineX1, int startLineY1, int startLineX2, int startLineY2) {
         // Define a largura e altura da pista em pixels reais

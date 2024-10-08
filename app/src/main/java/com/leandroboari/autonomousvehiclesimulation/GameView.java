@@ -9,7 +9,6 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 public class GameView extends SurfaceView implements Runnable {
-
     private Car car;
     private Track track;
     private Thread gameThread;
