@@ -17,6 +17,10 @@ public class GameView extends SurfaceView implements Runnable {
     private Thread gameThread;
     private SurfaceHolder surfaceHolder;
     private boolean running = false;
+    private boolean gameStarted = false;
+    private boolean gamePaused = true;
+    private long pausedTime = 0;
+    private long pauseStartTime = 0;
     private long startTime, lastFrameTime;
     private int fps;
 
@@ -59,7 +63,7 @@ public class GameView extends SurfaceView implements Runnable {
                 this,
                 683,
                 381,
-                -20,
+                -45,
                 4,
                 1,
                 8,
@@ -71,7 +75,7 @@ public class GameView extends SurfaceView implements Runnable {
                 this,
                 700,
                 399,
-                -20,
+                -45,
                 4,
                 1,
                 8,
@@ -83,15 +87,15 @@ public class GameView extends SurfaceView implements Runnable {
     public void run() {
         while (running) {
             if (surfaceHolder.getSurface().isValid()) {
-                long currentTime = System.currentTimeMillis();
-                long frameTime = currentTime - lastFrameTime;
+                if (!gamePaused) {
+                    long currentTime = System.currentTimeMillis();
+                    long frameTime = currentTime - lastFrameTime;
 
-                // Calcular o FPS
-                if (frameTime > 0) {
+                    // Calcular o FPS (código existente)
                     fps = (int) (1000 / frameTime);
-                }
 
-                lastFrameTime = currentTime;
+                    lastFrameTime = currentTime;
+                }
 
                 // Bloqueia o canvas e começa a desenhar
                 Canvas canvas = surfaceHolder.lockCanvas();
@@ -114,13 +118,24 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+    private int lastElapsedTime = 0;  // Para armazenar o tempo da última atualização válida
+
     private void drawInfo(Canvas canvas) {
         Paint infoPaint = new Paint();
         infoPaint.setColor(Color.GRAY);
         infoPaint.setTextSize(16);
 
         long currentTime = System.currentTimeMillis();
-        int elapsedTime = (int) ((currentTime - startTime) / 1000f);
+        int elapsedTime;
+
+        if (!gamePaused) {
+            // Atualiza o tempo apenas se o jogo não estiver pausado
+            elapsedTime = (int) ((currentTime - startTime - pausedTime) / 1000f);
+            lastElapsedTime = elapsedTime;  // Armazena o tempo calculado
+        } else {
+            // Se estiver pausado, mantém o último valor de tempo calculado
+            elapsedTime = lastElapsedTime;
+        }
 
         // Variável de controle para posicionar o texto na tela
         int lineSpacing = 18;
@@ -154,6 +169,7 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
+
     public void resume() {
         running = true;
         gameThread = new Thread(this);
@@ -176,15 +192,31 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-    public List<Car> getCars() {
-        return cars;
+    public void togglePause() {
+        gamePaused = !gamePaused;
+
+        if (!gamePaused) {
+            // Se o jogo ainda não começou, define o startTime
+            if (!gameStarted) {
+                startTime = System.currentTimeMillis();
+                gameStarted = true;
+            } else {
+                // Caso contrário, calcula o tempo total que o jogo ficou pausado
+                pausedTime += System.currentTimeMillis() - pauseStartTime;
+            }
+        } else {
+            // Registra o momento em que o jogo foi pausado
+            pauseStartTime = System.currentTimeMillis();
+        }
     }
+
+    public boolean isGamePaused() { return gamePaused; }
 
     public boolean isCollision(float x, float y) {
         return track.isCollision(x, y);
     }
 
-    public Track getTrack() {
-        return track;
-    }
+    public Track getTrack() { return track; }
+
+    public List<Car> getCars() { return cars; }
 }

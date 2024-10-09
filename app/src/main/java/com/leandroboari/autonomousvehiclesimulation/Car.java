@@ -103,6 +103,11 @@ public class Car extends Thread {
     }
 
     private void moveCar() {
+
+        if (gameView.isGamePaused()) {
+            return;
+        }
+
         // Atualiza a posição do carro com base na velocidade e ângulo.
         float radians = (float) Math.toRadians(angle);
         float newX = x + speed * (float) Math.cos(radians);

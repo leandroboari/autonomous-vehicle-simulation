@@ -1,6 +1,9 @@
 package com.leandroboari.autonomousvehiclesimulation;
 
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+
 import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -19,18 +22,31 @@ public class MainActivity extends AppCompatActivity {
 
         // Inicializa o GameView (isso pode ser feito no GameView diretamente)
         gameView.init(this);
-    }
 
+        Button buttonControl = findViewById(R.id.button_control);
+        buttonControl.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                gameView.togglePause(); // Alterna o estado de pausa
+
+                if (gameView.isGamePaused()) {
+                    buttonControl.setText("Começar");
+                } else {
+                    buttonControl.setText("Pausar");
+                }
+            }
+        });
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        gameView.resume(); // Retomar o loop do jogo ao voltar ao app.
+        gameView.resume();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        gameView.pause(); // Pausar o loop do jogo ao sair do app.
+        gameView.pause();
     }
 }
