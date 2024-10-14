@@ -2,14 +2,12 @@
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <!-- LinearLayout para agrupar GameView e botões -->
+    android:layout_height="match_parent"
+    android:background="@color/black">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
-
         <com.leandroboari.autonomousvehiclesimulation.GameView
             android:id="@+id/game_view"
             android:layout_width="800px"
@@ -17,40 +15,47 @@
             android:layout_marginTop="10dp"
             android:layout_gravity="center_horizontal"
             tools:ignore="PxUsage" />
-
         <LinearLayout
             android:id="@+id/button_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginTop="10dp"
             android:gravity="center">
-
-            <Button
-                android:id="@+id/button_add_car"
-                android:layout_width="wrap_content"
+            <EditText
+                android:id="@+id/input_cars"
+                android:layout_width="150dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="5dp"
-                android:text="Novo Carro"
-                tools:ignore="ButtonStyle,HardcodedText" />
-
+                android:layout_marginHorizontal="10dp"
+                android:hint="Qtde. de Carros"
+                android:textAlignment="center"
+                android:inputType="text"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white"
+                android:backgroundTint="@color/white"
+                android:textSize="16sp"
+                tools:ignore="HardcodedText" />
             <Button
                 android:id="@+id/button_control"
-                android:layout_width="wrap_content"
+                android:visibility="gone"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="5dp"
-                android:text="Começar"
+                android:text="Play"
+                android:backgroundTint="@color/green"
+                android:textColor="@color/black"
+                android:textSize="16sp"
                 tools:ignore="ButtonStyle,HardcodedText" />
-
             <Button
                 android:id="@+id/button_finish"
-                android:layout_width="wrap_content"
+                android:visibility="gone"
+                android:layout_width="120dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="5dp"
                 android:text="Finalizar"
+                android:backgroundTint="@color/red"
+                android:textColor="@color/black"
+                android:textSize="16sp"
                 tools:ignore="ButtonStyle,HardcodedText" />
-
         </LinearLayout>
-
     </LinearLayout>
 </ScrollView>

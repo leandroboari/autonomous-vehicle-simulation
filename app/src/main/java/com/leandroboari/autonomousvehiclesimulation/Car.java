@@ -224,18 +224,15 @@ public class Car extends Thread {
         float dx = (float) Math.cos(radians);
         float dy = (float) Math.sin(radians);
         float distance = 0;
-
         while (distance < detectionDistance) {
             float checkX = x + distance * dx;
             float checkY = y + distance * dy;
-
             if (gameView.isCollision(checkX, checkY) || isCollisionWithOtherCars(checkX, checkY)) {
-                return distance; // Colisão detectada
+                return distance;
             }
-
             distance++;
         }
-        return detectionDistance; // Sem obstáculos detectados dentro da distância máxima
+        return detectionDistance;
     }
 
     private float calculateError() {
@@ -269,20 +266,15 @@ public class Car extends Thread {
             }
         }
     }
-
     public int getTotalDistanceMoved() {
         return totalDistanceMoved;
     }
-
     public int getLapCount() {
         return lapCount;
     }
-
     public float getSpeed() {
         return speed;
     }
-
     public int getCarWidth() { return carWidth; }
-
     public int getCarHeight() { return carHeight; }
 }
