@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -18,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private EditText inputCars;
     private Button buttonControl;
     private Button buttonFinish;
+    TextView textViewInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,14 +27,15 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
 
-        gameView = findViewById(R.id.game_view);
-        gameView.init(this);
-        gameView.resume();
-
         buttonControl = findViewById(R.id.button_control);
         buttonFinish = findViewById(R.id.button_finish);
-
         inputCars = findViewById(R.id.input_cars);
+        textViewInfo = findViewById(R.id.text_info);
+
+        gameView = findViewById(R.id.game_view);
+        gameView.setTextViewInfo(textViewInfo);
+        gameView.init(this);
+        gameView.resume();
 
         // Adiciona um TextWatcher para escutar alterações no campo de input_cars
         inputCars.addTextChangedListener(new TextWatcher() {
@@ -96,7 +99,6 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 gameView.togglePause();
-
                 finish();
             }
         });

@@ -7,9 +7,11 @@ import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class GameView extends SurfaceView implements Runnable {
     private List<Car> cars;
@@ -26,6 +28,7 @@ public class GameView extends SurfaceView implements Runnable {
     private long pauseStartTime = 0;
     private long startTime, lastFrameTime;
     private int fps;
+    TextView textViewInfo;
 
     public GameView(Context context) {
         super(context);
@@ -40,7 +43,6 @@ public class GameView extends SurfaceView implements Runnable {
     public void init(Context context) {
         surfaceHolder = getHolder();
 
-        // Inicializa o tempo de início
         startTime = System.currentTimeMillis();
         lastFrameTime = System.currentTimeMillis();
 
@@ -66,37 +68,47 @@ public class GameView extends SurfaceView implements Runnable {
         startingPositions.add(new CarPosition(623, 464, -45));
 
         carPlaceholders = new ArrayList<>();
-
-        // Inicia os carros
         cars = new ArrayList<>();
+    }
 
-        // Carro 1
-//        cars.add(new Car(
-//                this,
-//                683,
-//                381,
-//                -45,
-//                4,
-//                1,
-//                8,
-//                50
-//        ));
+    private void createCars(int numCars) {
+        for (int i = 0; i < numCars; i++) {
+            CarPosition startPos = startingPositions.get(i);
 
+            // Geração de velocidades aleatórias
+            Random random = new Random();
+            int min = 3;
+            int max = 8;
+            int minSpeed = random.nextInt(max - min + 1) + min;
+            int maxSpeed = random.nextInt(max - min + 1) + min;
+
+            // Criação de carros
+            Car car = new Car(
+                    this,
+                    startPos.getX(),
+                    startPos.getY(),
+                    startPos.getAngle(),
+                    0,
+                    minSpeed,
+                    maxSpeed,
+                    40
+            );
+
+            cars.add(car);
+            car.start();
+        }
     }
 
     public void createCarPlaceholders(int numCars) {
-        carPlaceholders = new ArrayList<>();  // Inicializa a lista de placeholders
-
-        // Limita o número de carros ao tamanho da lista de startingPositions
+        carPlaceholders = new ArrayList<>();
         int numPlaceholders = Math.min(numCars, startingPositions.size());
 
         for (int i = 0; i < numPlaceholders; i++) {
             CarPosition startPos = startingPositions.get(i);
             CarPlaceholder placeholder = new CarPlaceholder(this, startPos.getX(), startPos.getY(), startPos.getAngle());
-            carPlaceholders.add(placeholder);  // Adiciona à lista de placeholders
+            carPlaceholders.add(placeholder);
         }
     }
-
 
     @Override
     public void run() {
@@ -105,25 +117,21 @@ public class GameView extends SurfaceView implements Runnable {
                 if (!gamePaused) {
                     long currentTime = System.currentTimeMillis();
                     long frameTime = currentTime - lastFrameTime;
-
                     fps = (int) (1000 / frameTime);
                     lastFrameTime = currentTime;
                 }
 
                 Canvas canvas = surfaceHolder.lockCanvas();
-                canvas.drawRGB(255, 255, 255); // Fundo branco
+                canvas.drawRGB(255, 255, 255);
 
-                // Desenha a pista
                 track.draw(canvas);
 
-                // Desenha os placeholders (se habilitado)
                 if (showPlaceholders) {
                     for (CarPlaceholder placeholder : carPlaceholders) {
                         placeholder.draw(canvas);
                     }
                 }
 
-                // Desenha os carros
                 for (Car car : cars) {
                     car.draw(canvas);
                 }
@@ -135,8 +143,7 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-
-    private int lastElapsedTime = 0;  // Para armazenar o tempo da última atualização válida
+    private int lastElapsedTime = 0;
 
     private void drawInfo(Canvas canvas) {
         Paint infoPaint = new Paint();
@@ -147,44 +154,35 @@ public class GameView extends SurfaceView implements Runnable {
         int elapsedTime;
 
         if (!gamePaused) {
-            // Atualiza o tempo apenas se o jogo não estiver pausado
             elapsedTime = (int) ((currentTime - startTime - pausedTime) / 1000f);
-            lastElapsedTime = elapsedTime;  // Armazena o tempo calculado
+            lastElapsedTime = elapsedTime;
         } else {
-            // Se estiver pausado, mantém o último valor de tempo calculado
             elapsedTime = lastElapsedTime;
         }
 
-        // Variável de controle para posicionar o texto na tela
         int lineSpacing = 28;
         int marginSpacing = 8;
         int baseY = marginSpacing + lineSpacing;
 
-        // Exibir FPS e tempo decorrido
         canvas.drawText("FPS: " + fps, marginSpacing, baseY, infoPaint);
-
         baseY += lineSpacing;
         canvas.drawText("Tempo: " + elapsedTime + "s", marginSpacing, baseY, infoPaint);
 
-        baseY = baseY + lineSpacing + marginSpacing;
+        StringBuilder info = new StringBuilder();
+        info.append("Informações dos Carros").append("\n\n");
 
-//        // Desenha informações para cada carro
-//        for (int i = 0; i < cars.size(); i++) {
-//            Car car = cars.get(i);
-//            int distanceMoved = car.getTotalDistanceMoved();
-//            int laps = car.getLapCount();
-//
-//            int velocidade = (int) car.getSpeed();
-//
-//            // Informações do carro na tela
-//            canvas.drawText("Carro " + (i + 1) + ":", marginSpacing, baseY, infoPaint);
-//            canvas.drawText("Distância: " + distanceMoved + "px", marginSpacing, baseY + lineSpacing, infoPaint);
-//            canvas.drawText("Voltas: " + laps, marginSpacing, baseY + 2 * lineSpacing, infoPaint);
-//            canvas.drawText("Velocidade: " + velocidade + "px/s", marginSpacing, baseY + 3 * lineSpacing, infoPaint);
-//
-//            // Ajusta a posição Y para exibir o próximo carro
-//            baseY += (4 * lineSpacing) + marginSpacing;
-//        }
+        for (int i = 0; i < cars.size(); i++) {
+            Car car = cars.get(i);
+            info.append("Carro ").append(i + 1).append(":\n");
+            info.append("Distância: ").append(car.getTotalDistanceMoved()).append("px\n");
+            info.append("Voltas: ").append(car.getLapCount()).append("\n");
+            info.append("Velocidade: ").append((int) car.getSpeed()).append("px/s\n");
+            info.append("Penalidade(s): ").append(car.getPenalties()).append("\n");
+            info.append("\n");
+        }
+
+        // Atualiza o TextView na thread principal (UI)
+        ((MainActivity) getContext()).runOnUiThread(() -> textViewInfo.setText(info.toString()));
     }
 
     public void resume() {
@@ -192,19 +190,18 @@ public class GameView extends SurfaceView implements Runnable {
         gameThread = new Thread(this);
         gameThread.start();
         for (Car car : cars) {
-            car.start(); // Inicia a thread de cada carro
+            car.start();
         }
     }
 
     public void pause() {
         running = false;
         for (Car car : cars) {
-            car.stopCar(); // Para cada carro
+            car.stopCar();
         }
         try {
             gameThread.join();
         } catch (InterruptedException e) {
-            //noinspection CallToPrintStackTrace
             e.printStackTrace();
         }
     }
@@ -213,60 +210,42 @@ public class GameView extends SurfaceView implements Runnable {
         gamePaused = !gamePaused;
 
         if (!gamePaused) {
-            // Se o jogo ainda não começou, define o startTime e cria os carros
             if (!gameStarted) {
                 startTime = System.currentTimeMillis();
                 gameStarted = true;
-
-                // Cria os carros reais apenas quando o jogo começar
                 createCars(carPlaceholders.size());
-
-                // Remove os placeholders
                 carPlaceholders.clear();
             } else {
-                // Caso contrário, calcula o tempo total que o jogo ficou pausado
                 pausedTime += System.currentTimeMillis() - pauseStartTime;
             }
         } else {
-            // Registra o momento em que o jogo foi pausado
             pauseStartTime = System.currentTimeMillis();
         }
     }
 
 
-    private void createCars(int numCars) {
-        // Para cada posição inicial disponível, cria um novo carro
-        for (int i = 0; i < numCars; i++) {
-            CarPosition startPos = startingPositions.get(i);
 
-            // Cria uma nova instância de Carro
-            Car car = new Car(
-                    this,
-                    startPos.getX(),
-                    startPos.getY(),
-                    startPos.getAngle(),
-                    4,   // Velocidade inicial do carro (exemplo)
-                    1,   // Direção inicial (exemplo)
-                    8,   // Aceleração (exemplo)
-                    50   // Velocidade máxima (exemplo)
-            );
-
-            // Adiciona o carro à lista de carros
-            cars.add(car);
-
-            car.start();
-        }
+    public boolean isGameStarted() {
+        return gameStarted;
     }
 
-    public boolean isGameStarted() { return gameStarted; }
-
-    public boolean isGamePaused() { return gamePaused; }
+    public boolean isGamePaused() {
+        return gamePaused;
+    }
 
     public boolean isCollision(float x, float y) {
         return track.isCollision(x, y);
     }
 
-    public Track getTrack() { return track; }
+    public Track getTrack() {
+        return track;
+    }
 
-    public List<Car> getCars() { return cars; }
+    public List<Car> getCars() {
+        return cars;
+    }
+
+    public void setTextViewInfo(TextView textViewInfo) {
+        this.textViewInfo = textViewInfo;
+    }
 }

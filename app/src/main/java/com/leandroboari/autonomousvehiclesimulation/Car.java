@@ -16,7 +16,8 @@ public class Car extends Thread {
     private final float maxSpeed;
     private final float detectionDistance;
 //    private int fuelTank;
-//    private int penalty;
+    private int penalties;
+    private boolean hasPenalty;
     private final float[] sensorMap = new float[9]; // Distâncias detectadas pelos sensores.
     private final float[] sensorAngles = {0, 15, 30, 45, 60, 300, 315, 330, 345};
     private boolean running = true;
@@ -50,12 +51,14 @@ public class Car extends Thread {
         this.x = x;
         this.y = y;
         this.angle = angle;
-        this.speed = speed; // Velocidade em pixels por frame
-        this.minSpeed = minSpeed;  // Velocidade mínima definida pelo usuário
-        this.maxSpeed = maxSpeed;  // Velocidade máxima definida pelo usuário
+        this.speed = speed;
+        this.minSpeed = minSpeed;
+        this.maxSpeed = maxSpeed;
         this.detectionDistance = detectionDistance;
         this.previousX = x;
         this.previousY = y;
+        this.penalties = 0;
+        this.hasPenalty = false;
 
         // Controlador PID para direção
         this.pidController = new PIDController(0.5f, 0.01f, 0.1f);
@@ -124,6 +127,12 @@ public class Car extends Thread {
         if (!gameView.isCollision(newX, newY) && !isCollisionWithOtherCars(newX, newY)) {
             x = newX;
             y = newY;
+            hasPenalty = false;
+        } else {
+            if(!hasPenalty) {
+                penalties++;
+                hasPenalty = true;
+            }
         }
 
         // Atualiza os sensores
@@ -277,4 +286,5 @@ public class Car extends Thread {
     }
     public int getCarWidth() { return carWidth; }
     public int getCarHeight() { return carHeight; }
+    public int getPenalties() { return penalties; }
 }

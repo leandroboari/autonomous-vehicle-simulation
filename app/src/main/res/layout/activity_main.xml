@@ -57,5 +57,16 @@
                 android:textSize="16sp"
                 tools:ignore="ButtonStyle,HardcodedText" />
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="20dp">
+            <TextView
+                android:id="@+id/text_info"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:textAlignment="center" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>
