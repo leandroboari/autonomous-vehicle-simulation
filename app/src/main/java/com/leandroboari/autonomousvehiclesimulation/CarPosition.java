@@ -1,37 +1,26 @@
 package com.leandroboari.autonomousvehiclesimulation;
 
 public class CarPosition {
-    private float x;
-    private float y;
-    private float angle;
-
-    public CarPosition(float x, float y, float angle) {
+    private final float x;
+    private final float y;
+    private final float angle;
+    private final String color;
+    public CarPosition(float x, float y, float angle, String color) {
         this.x = x;
         this.y = y;
         this.angle = angle;
+        this.color = color;
     }
-
     public float getX() {
         return x;
     }
-
-    public void setX(float x) {
-        this.x = x;
-    }
-
     public float getY() {
         return y;
     }
-
-    public void setY(float y) {
-        this.y = y;
-    }
-
     public float getAngle() {
         return angle;
     }
-
-    public void setAngle(float rotation) {
-        this.angle = rotation;
+    public String getColor() {
+        return color;
     }
 }

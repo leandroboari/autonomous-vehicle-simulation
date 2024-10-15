@@ -5,6 +5,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 
 public class Car extends Thread {
@@ -15,6 +17,7 @@ public class Car extends Thread {
     private final float minSpeed;
     private final float maxSpeed;
     private final float detectionDistance;
+    private final String color;
 //    private int fuelTank;
     private int penalties;
     private boolean hasPenalty;
@@ -45,7 +48,8 @@ public class Car extends Thread {
             float speed,
             float minSpeed,
             float maxSpeed,
-            float detectionDistance
+            float detectionDistance,
+            String color
     ) {
         this.gameView = gameView;
         this.x = x;
@@ -55,6 +59,7 @@ public class Car extends Thread {
         this.minSpeed = minSpeed;
         this.maxSpeed = maxSpeed;
         this.detectionDistance = detectionDistance;
+        this.color = color;
         this.previousX = x;
         this.previousY = y;
         this.penalties = 0;
@@ -194,19 +199,30 @@ public class Car extends Thread {
     }
 
     public void draw(Canvas canvas) {
-        // Desenha o carro usando a imagem (Bitmap)
+        // Salva o estado do canvas para futuras restaurações
         canvas.save();
-        canvas.rotate(angle, x, y); // Rotaciona o carro baseado no ângulo
 
-        // Desenha o bitmap do carro no centro do carro (ajustado para que o centro do bitmap seja
-        // o ponto de rotação)
+        // Rotaciona o carro baseado no ângulo
+        canvas.rotate(angle, x, y);
+
+        // Cria um objeto Paint para o carro com uma cor definida
+        Paint carPaint = new Paint();
+        carPaint.setColorFilter(
+            new PorterDuffColorFilter(
+                Color.parseColor(color),
+                PorterDuff.Mode.SRC_ATOP
+            )
+        );
+
+        // Desenha o bitmap do carro no centro do carro
         canvas.drawBitmap(
                 carBitmap,
                 x - (float) carWidth / 2,
                 y - (float) carHeight / 2,
-                null
+                carPaint // Aplicando a cor ao carro
         );
 
+        // Restaura o estado do canvas
         canvas.restore();
 
         // Desenha os sensores em vermelho

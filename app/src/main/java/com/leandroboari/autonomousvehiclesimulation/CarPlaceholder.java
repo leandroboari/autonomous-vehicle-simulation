@@ -3,6 +3,10 @@ package com.leandroboari.autonomousvehiclesimulation;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 
 public class CarPlaceholder {
     private float x;
@@ -30,15 +34,30 @@ public class CarPlaceholder {
     }
 
     public void draw(Canvas canvas) {
-        // Desenha o carro usando a imagem (Bitmap)
+        // Salva o estado do canvas para futuras restaurações
         canvas.save();
-        canvas.rotate(angle, x, y); // Rotaciona o carro baseado no ângulo
+
+        // Rotaciona o carro baseado no ângulo
+        canvas.rotate(angle, x, y);
+
+        // Cria um objeto Paint para o carro com uma cor definida
+        Paint carPaint = new Paint();
+        carPaint.setColorFilter(
+                new PorterDuffColorFilter(
+                        Color.parseColor("#888888"),
+                        PorterDuff.Mode.SRC_ATOP
+                )
+        );
+
+        // Desenha o bitmap do carro no centro do carro
         canvas.drawBitmap(
                 carBitmap,
                 x - (float) carWidth / 2,
                 y - (float) carHeight / 2,
-                null
+                carPaint // Aplicando a cor ao carro
         );
+
+        // Restaura o estado do canvas
         canvas.restore();
     }
 }

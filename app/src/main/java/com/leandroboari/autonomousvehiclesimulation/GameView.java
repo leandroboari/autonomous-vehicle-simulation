@@ -58,45 +58,73 @@ public class GameView extends SurfaceView implements Runnable {
         );
 
         startingPositions = new ArrayList<>();
-        startingPositions.add(new CarPosition(683, 381, -45));
-        startingPositions.add(new CarPosition(700, 399, -45));
-        startingPositions.add(new CarPosition(662, 401, -45));
-        startingPositions.add(new CarPosition(679, 420, -45));
-        startingPositions.add(new CarPosition(635, 422, -45));
-        startingPositions.add(new CarPosition(652, 440, -45));
-        startingPositions.add(new CarPosition(608, 444, -45));
-        startingPositions.add(new CarPosition(623, 464, -45));
+        startingPositions.add(
+                new CarPosition(
+                        683,
+                        381,
+                        -45,
+                        "#00DA62"
+                )
+        );
+        startingPositions.add(
+                new CarPosition(
+                        700,
+                        399,
+                        -45,
+                        "#0066DA"
+                )
+        );
+        startingPositions.add(
+                new CarPosition(
+                        662,
+                        401,
+                        -45,
+                        "#5B00DA"
+                )
+        );
+        startingPositions.add(
+                new CarPosition(
+                        679,
+                        420,
+                        -45,
+                        "#DA00BD"
+                )
+        );
+        startingPositions.add(
+                new CarPosition(
+                        635,
+                        422,
+                        -45,
+                        "#DA0004"
+                )
+        );
+        startingPositions.add(
+                new CarPosition(
+                        652,
+                        440,
+                        -45,
+                        "#DA9500"
+                )
+        );
+        startingPositions.add(
+                new CarPosition(
+                        608,
+                        444,
+                        -45,
+                        "#FFA600"
+                )
+        );
+        startingPositions.add(
+                new CarPosition(
+                        623,
+                        464,
+                        -45,
+                        "#A0DA00"
+                )
+        );
 
         carPlaceholders = new ArrayList<>();
         cars = new ArrayList<>();
-    }
-
-    private void createCars(int numCars) {
-        for (int i = 0; i < numCars; i++) {
-            CarPosition startPos = startingPositions.get(i);
-
-            // Geração de velocidades aleatórias
-            Random random = new Random();
-            int min = 3;
-            int max = 8;
-            int minSpeed = random.nextInt(max - min + 1) + min;
-            int maxSpeed = random.nextInt(max - min + 1) + min;
-
-            // Criação de carros
-            Car car = new Car(
-                    this,
-                    startPos.getX(),
-                    startPos.getY(),
-                    startPos.getAngle(),
-                    0,
-                    minSpeed,
-                    maxSpeed,
-                    40
-            );
-
-            cars.add(car);
-            car.start();
-        }
     }
 
     public void createCarPlaceholders(int numCars) {
@@ -105,8 +133,42 @@ public class GameView extends SurfaceView implements Runnable {
 
         for (int i = 0; i < numPlaceholders; i++) {
             CarPosition startPos = startingPositions.get(i);
-            CarPlaceholder placeholder = new CarPlaceholder(this, startPos.getX(), startPos.getY(), startPos.getAngle());
+            CarPlaceholder placeholder = new CarPlaceholder(
+                    this,
+                    startPos.getX(),
+                    startPos.getY(),
+                    startPos.getAngle()
+            );
             carPlaceholders.add(placeholder);
+        }
+    }
+
+    private void createCars(int numCars) {
+        for (int i = 0; i < numCars; i++) {
+            CarPosition position = startingPositions.get(i);
+
+            // Geração de velocidades aleatórias
+            Random random = new Random();
+            int min = 4;
+            int max = 8;
+            int maxSpeed = random.nextInt(max - min + 1) + min;
+            int minSpeed = maxSpeed - 3;
+
+            // Criação de carros
+            Car car = new Car(
+                    this,
+                    position.getX(),
+                    position.getY(),
+                    position.getAngle(),
+                    0,
+                    minSpeed,
+                    maxSpeed,
+                    40,
+                    position.getColor()
+            );
+
+            cars.add(car);
+            car.start();
         }
     }
 
