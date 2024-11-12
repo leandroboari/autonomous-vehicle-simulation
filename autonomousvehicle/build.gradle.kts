@@ -1,20 +1,17 @@
 plugins {
-    id("com.google.gms.google-services")
-
-    alias(libs.plugins.android.application)
-
+    id("com.android.library")
 }
 
 android {
-    namespace = "com.leandroboari.autonomousvehiclesimulation"
+    namespace = "com.leandroboari.autonomousvehicle"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.leandroboari.autonomousvehiclesimulation"
-        minSdk = 29
-        targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+//        applicationId = "com.leandroboari.autonomousvehicle"
+//        minSdk = 29
+//        targetSdk = 34
+//        versionCode = 1
+//        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -36,16 +33,8 @@ android {
 
 dependencies {
 
-    // Implementação da biblioteca
-    implementation(project(":autonomousvehicle"))
-
-    // Implementação do Firebase
-    implementation(platform("com.google.firebase:firebase-bom:33.5.1"))
-
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.activity)
-    implementation(libs.constraintlayout)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

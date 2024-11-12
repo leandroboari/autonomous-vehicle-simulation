@@ -9,6 +9,9 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 
+import com.leandroboari.autonomousvehicle.PIDController;
+import com.leandroboari.autonomousvehicle.Sensor;
+
 public class Car extends Thread {
     // Posições X e Y do carro
     private float x;
@@ -159,19 +162,10 @@ public class Car extends Thread {
             return;
         }
 
-        // Converte o ângulo de graus para radianos
-        float radians = (float) Math.toRadians(angle);
-
-        // Calcula as novas posições X e Y do carro com base na velocidade e ângulo
-        float newX = x + speed * (float) Math.cos(radians);
-        float newY = y + speed * (float) Math.sin(radians);
-
-        // Calcula a distância percorrida usando a fórmula da distância euclidiana
-        double calcPreviousX = Math.pow(newX - previousX, 2);
-        double calcPreviousY = Math.pow(newY - previousY, 2);
-
-        // Atualiza a distância total
-        totalDistanceMoved += (int) Math.sqrt(calcPreviousX + calcPreviousY);
+        double[] resultado = Sensor.moveCalc(x, y, speed, angle, previousX, previousY, totalDistanceMoved);
+        float newX = (float) resultado[0];
+        float newY = (float) resultado[1];
+        totalDistanceMoved = (int) resultado[2];
 
         // Atualiza a posição X e Y anterior
         previousX = newX;

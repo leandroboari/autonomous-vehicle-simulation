@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "Autonomous Vehicle Simulation"
 include(":app")
- 
+include(":autonomousvehicle")
