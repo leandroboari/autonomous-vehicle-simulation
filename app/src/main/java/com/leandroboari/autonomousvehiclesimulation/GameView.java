@@ -5,12 +5,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import com.leandroboari.autonomousvehicle.Database;
@@ -69,7 +71,14 @@ public class GameView extends SurfaceView implements Runnable {
         surfaceHolder = getHolder();
 
         // Recupera dados do banco de dados
-        Database.getLastCarData();
+        Database.getLastCarFromFirestore(carData -> {
+            if (carData != null) {
+                // Manipule o mapa de dados do carro aqui
+                Log.d("Firestore", "Car data received: " + carData.toString());
+            } else {
+                Log.d("Firestore", "No car data available or error occurred.");
+            }
+        });
 
         // Inicialização do tempo
         startTime = System.currentTimeMillis();

@@ -4,6 +4,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -29,6 +30,7 @@ public class Database {
         carData.put("minSpeed", minSpeed);
         carData.put("penalties", penalties);
         carData.put("speed", speed);
+        carData.put("timestamp", Timestamp.now());
 
         // Caminho da coleção e documento
         db.collection("raceLastStates")
@@ -52,7 +54,12 @@ public class Database {
                 });
     }
 
-    public static void getLastCarData() {
+    // Interface de callback para retornar os dados
+    public interface FirestoreCallback {
+        void onCallback(Map<String, Object> carData);
+    }
+
+    public static void getLastCarFromFirestore(FirestoreCallback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         db.collection("raceLastStates")
@@ -66,8 +73,12 @@ public class Database {
                             QueryDocumentSnapshot document = (QueryDocumentSnapshot) queryDocumentSnapshots.getDocuments().get(0);
                             Map<String, Object> carData = document.getData();
                             Log.d("Firestore", "Last car data: " + carData.toString());
+
+                            // Chama o callback com os dados
+                            callback.onCallback(carData);
                         } else {
                             Log.d("Firestore", "No car data found.");
+                            callback.onCallback(null); // Retorna null se não houver dados
                         }
                     }
                 })
@@ -75,6 +86,7 @@ public class Database {
                     @Override
                     public void onFailure(@NonNull Exception e) {
                         Log.w("Firestore", "Error fetching last car data", e);
+                        callback.onCallback(null); // Retorna null em caso de falha
                     }
                 });
     }
