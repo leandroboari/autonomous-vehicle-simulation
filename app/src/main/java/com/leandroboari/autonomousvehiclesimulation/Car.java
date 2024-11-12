@@ -10,7 +10,7 @@ import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
 
 import com.leandroboari.autonomousvehicle.PIDController;
-import com.leandroboari.autonomousvehicle.Sensor;
+import com.leandroboari.autonomousvehicle.CarSensorUtils;
 
 public class Car extends Thread {
     // Posições X e Y do carro
@@ -162,7 +162,7 @@ public class Car extends Thread {
             return;
         }
 
-        double[] resultado = Sensor.moveCalc(x, y, speed, angle, previousX, previousY, totalDistanceMoved);
+        double[] resultado = CarSensorUtils.moveCalc(x, y, speed, angle, previousX, previousY, totalDistanceMoved);
         float newX = (float) resultado[0];
         float newY = (float) resultado[1];
         totalDistanceMoved = (int) resultado[2];
@@ -248,7 +248,15 @@ public class Car extends Thread {
     // Atualiza as leituras dos sensores do carro
     private void updateSensors() {
         for (int i = 0; i < sensorAngles.length; i++) {
-            sensorMap[i] = calculateDistanceForSensor(sensorAngles[i]); // Calcula a distância para cada sensor
+            sensorMap[i] = CarSensorUtils.calculateDistanceForSensor(
+                    sensorAngles[i],
+                    angle,
+                    x,
+                    y,
+                    detectionDistance,
+                    (checkX, checkY) -> gameView.isCollision(checkX, checkY),
+                    (checkX, checkY) -> isCollisionWithOtherCars(checkX, checkY)
+            );
         }
     }
 
