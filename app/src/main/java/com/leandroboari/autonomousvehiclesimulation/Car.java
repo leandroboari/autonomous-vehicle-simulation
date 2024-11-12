@@ -139,12 +139,15 @@ public class Car extends Thread {
     @Override
     public void run() {
         while (running) {
-            moveCar(); // Move o carro
-            gameView.postInvalidate(); // Solicita a atualização da tela
             try {
+                moveCar(); // Move o carro
+                gameView.postInvalidate(); // Solicita a atualização da tela
                 Thread.sleep(16); // Atraso para simular 60 FPS (~16 ms por frame)
             } catch (InterruptedException e) {
-                e.printStackTrace(); // Trata exceção de interrupção
+                Thread.currentThread().interrupt(); // Redefine o estado de interrupção
+                e.printStackTrace(); // Log da exceção
+            } catch (Exception e) {
+                e.printStackTrace(); // Trata qualquer exceção inesperada
             }
         }
     }
@@ -152,6 +155,14 @@ public class Car extends Thread {
     // Função para parar a thread do carro
     public void stopCar() {
         running = false; // Define running como falso para parar a thread
+        try {
+            join(); // Aguarda o término da thread
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            e.printStackTrace(); // Log da exceção
+        } catch (Exception e) {
+            e.printStackTrace(); // Tratamento de exceção genérica
+        }
     }
 
     // Função que move o carro

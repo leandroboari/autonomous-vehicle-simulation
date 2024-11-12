@@ -122,40 +122,29 @@ public class GameView extends SurfaceView implements Runnable {
 
     // Cria os carros para o jogo
     private void createCars(int numCars) {
-        for (int i = 0; i < numCars; i++) {
-
-            // Coleta informações da largada
-            CarPosition position = startingPositions.get(i);
-
-            // Gera velocidades aleatórias
-            Random random = new Random();
-
-            // Velocidade máxima entre 4 e 8
-            int minNumber = 4;
-            int maxNumber = 8;
-            int maxSpeed = random.nextInt(maxNumber - minNumber + 1) + minNumber;
-
-            // Velocidade mínima subtrai 3 da máxima
-            int minSpeed = maxSpeed - 3;
-
-            // Cria e inicializa os carros
-            Car car = new Car(
-                    this,
-                    position.getX(),
-                    position.getY(),
-                    position.getAngle(),
-                    0,
-                    minSpeed,
-                    maxSpeed,
-                    40,
-                    position.getColor()
-            );
-
-            // Adiciona novo carro na ArrayList cars
-            cars.add(car);
-
-            // Inicia a thread do carro
-            car.start();
+        try {
+            for (int i = 0; i < numCars; i++) {
+                CarPosition position = startingPositions.get(i);
+                Random random = new Random();
+                int maxSpeed = random.nextInt(5) + 4;
+                int minSpeed = maxSpeed - 3;
+                Car car = new Car(this,
+                        position.getX(),
+                        position.getY(),
+                        position.getAngle(),
+                        0,
+                        minSpeed,
+                        maxSpeed,
+                        40,
+                        position.getColor()
+                );
+                cars.add(car);
+                car.start();
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace(); // Verifica se as posições estão corretas
+        } catch (Exception e) {
+            e.printStackTrace(); // Log de qualquer outra exceção ao criar carros
         }
     }
 
@@ -164,34 +153,31 @@ public class GameView extends SurfaceView implements Runnable {
     public void run() {
         while (running) {
             if (surfaceHolder.getSurface().isValid()) {
-                // Calcula os frames por segundo se o jogo não estiver pausado
-                if (!gamePaused) {
-                    updateFPS();
-                }
-
-                // Desenha no canvas
-                Canvas canvas = surfaceHolder.lockCanvas();
-                canvas.drawRGB(255, 255, 255); // Fundo branco
-
-                // Desenha a pista
-                track.draw(canvas);
-
-                // Desenha os placeholders se ainda não iniciou o jogo
-                if (showPlaceholders) {
-                    for (CarPlaceholder placeholder : carPlaceholders) {
-                        placeholder.draw(canvas);
+                try {
+                    if (!gamePaused) {
+                        updateFPS();
                     }
+
+                    Canvas canvas = surfaceHolder.lockCanvas();
+                    if (canvas != null) {
+                        canvas.drawRGB(255, 255, 255); // Fundo branco
+                        track.draw(canvas);
+
+                        if (showPlaceholders) {
+                            for (CarPlaceholder placeholder : carPlaceholders) {
+                                placeholder.draw(canvas);
+                            }
+                        }
+
+                        for (Car car : cars) {
+                            car.draw(canvas);
+                        }
+                        drawInfo(canvas);
+                        surfaceHolder.unlockCanvasAndPost(canvas); // Finaliza o desenho
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace(); // Log da exceção de desenho
                 }
-
-                // Desenha os carros
-                for (Car car : cars) {
-                    car.draw(canvas);
-                }
-
-                // Desenha as informações do jogo
-                drawInfo(canvas);
-
-                surfaceHolder.unlockCanvasAndPost(canvas); // Finaliza o desenho
             }
         }
     }
@@ -268,33 +254,39 @@ public class GameView extends SurfaceView implements Runnable {
     // Pausa a execução do jogo
     public void pause() {
         running = false;
-        for (Car car : cars) {
-            car.stopCar(); // Para cada carro
-        }
         try {
-            gameThread.join(); // Aguarda a thread principal terminar
+            for (Car car : cars) {
+                car.stopCar();
+            }
+            if (gameThread != null) {
+                gameThread.join(); // Aguarda a thread principal terminar
+            }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
+            e.printStackTrace(); // Log da exceção
+        } catch (Exception e) {
+            e.printStackTrace(); // Tratamento de exceção genérica
         }
     }
+
     // Alterna entre pausa e execução
     public void togglePause() {
-        gamePaused = !gamePaused;
-
-        if (!gamePaused) {
-            if (!gameStarted) {
-                // Inicia o jogo se ainda não tiver começado
-                startTime = System.currentTimeMillis();
-                gameStarted = true;
-                createCars(carPlaceholders.size()); // Cria os carros de acordo com os placeholders
-                carPlaceholders.clear(); // Limpa os placeholders após iniciar o jogo
+        try {
+            gamePaused = !gamePaused;
+            if (!gamePaused) {
+                if (!gameStarted) {
+                    startTime = System.currentTimeMillis();
+                    gameStarted = true;
+                    createCars(carPlaceholders.size());
+                    carPlaceholders.clear();
+                } else {
+                    pausedTime += System.currentTimeMillis() - pauseStartTime;
+                }
             } else {
-                // Retoma o jogo após pausa, ajustando o tempo de pausa
-                pausedTime += System.currentTimeMillis() - pauseStartTime;
+                pauseStartTime = System.currentTimeMillis();
             }
-        } else {
-            // Marca o tempo em que o jogo foi pausado
-            pauseStartTime = System.currentTimeMillis();
+        } catch (Exception e) {
+            e.printStackTrace(); // Log de erro no controle de pausa
         }
     }
 
