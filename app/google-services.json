@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1023297437201",
+    "project_id": "autonomous-vehicle-simulation",
+    "storage_bucket": "autonomous-vehicle-simulation.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1023297437201:android:49bfd10ba0708f944d7bb0",
+        "android_client_info": {
+          "package_name": "com.leandroboari.autonomousvehiclesimulation"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVq_lfCw02OaS2dvpKac1tUkLlxorORVQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
