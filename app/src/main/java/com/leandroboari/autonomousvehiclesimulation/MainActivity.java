@@ -119,11 +119,7 @@ public class MainActivity extends AppCompatActivity {
         buttonFinish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                // Pausa o jogo antes de finalizar
-                if(!gameView.isGamePaused()) {
-                    gameView.togglePause();
-                }
+                gameView.endGame();
 
                 // Finaliza a atividade
                 finish();

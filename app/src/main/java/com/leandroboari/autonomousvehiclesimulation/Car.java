@@ -372,4 +372,23 @@ public class Car extends Thread {
     public int getPenalties() {
         return penalties;
     }
+
+    public float getX() {
+        return x;
+    }
+    public float getY() {
+        return y;
+    }
+    public float getAngle() {
+        return angle;
+    }
+    public String getColor() {
+        return color;
+    }
+    public float getMaxSpeed() {
+        return maxSpeed;
+    }
+    public float getMinSpeed() {
+        return minSpeed;
+    }
 }

@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import com.leandroboari.autonomousvehicle.Database;
+
 public class GameView extends SurfaceView implements Runnable {
 
     // Lista de carros e placeholders
@@ -65,6 +67,9 @@ public class GameView extends SurfaceView implements Runnable {
     // Inicialização do GameView
     public void init(Context context) {
         surfaceHolder = getHolder();
+
+        // Recupera dados do banco de dados
+        Database.getLastCarData();
 
         // Inicialização do tempo
         startTime = System.currentTimeMillis();
@@ -303,6 +308,26 @@ public class GameView extends SurfaceView implements Runnable {
     // Verifica se há colisão em determinada coordenada (x, y)
     public boolean isCollision(float x, float y) {
         return track.isCollision(x, y); // Usa a função de colisão da pista
+    }
+
+    public void endGame() {
+        for (Car car : cars) {
+            double x = car.getX();
+            double y = car.getY();
+            double angle = car.getAngle();
+            String color = car.getColor();
+            double maxSpeed = car.getMaxSpeed();
+            double minSpeed = car.getMinSpeed();
+            double penalties = car.getPenalties();
+            double speed = car.getSpeed();
+            Database.saveCarDataToFirestore(x, y, angle, color, maxSpeed, minSpeed, penalties, speed);
+        }
+
+
+        // Pausa o jogo antes de finalizar
+        if(!this.isGamePaused()) {
+            this.togglePause();
+        }
     }
 
     // Retorna a pista associada a este GameView
