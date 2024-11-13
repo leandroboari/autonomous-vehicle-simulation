@@ -28,7 +28,7 @@ public class Car extends Thread {
     private final float maxSpeed;
 
     // Distância máxima de detecção dos sensores
-    private final float detectionDistance;
+    private float detectionDistance;
 
     // Cor do carro
     private final String color;
@@ -40,7 +40,7 @@ public class Car extends Thread {
     private boolean hasPenalty;
 
     // Array com as distâncias detectadas pelos sensores do carro
-    private final float[] sensorMap = new float[9];
+    private float[] sensorMap = new float[9];
 
     // Ângulos dos sensores em relação ao carro
     private final float[] sensorAngles = {0, 15, 30, 45, 60, 300, 315, 330, 345};
@@ -291,7 +291,7 @@ public class Car extends Thread {
     }
 
     // Calcula o erro entre os sensores laterais para ajustar a direção do carro
-    private float calculateError() {
+    public float calculateError() {
         float leftAvg = (sensorMap[5] + sensorMap[6] + sensorMap[7]) / 3; // Média dos sensores do lado esquerdo
         float rightAvg = (sensorMap[2] + sensorMap[3] + sensorMap[4]) / 3; // Média dos sensores do lado direito
 
@@ -390,5 +390,13 @@ public class Car extends Thread {
     }
     public float getMinSpeed() {
         return minSpeed;
+    }
+
+    public void setSensorMap(float[] sensorMap) {
+        this.sensorMap = sensorMap;
+    }
+
+    public void setDetectionDistance(float detectionDistance) {
+        this.detectionDistance = detectionDistance;
     }
 }

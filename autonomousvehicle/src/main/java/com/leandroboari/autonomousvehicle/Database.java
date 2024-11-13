@@ -4,20 +4,26 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FieldPath;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Database {
 
-    public static void saveCarDataToFirestore(double x, double y, double angle, String color, double maxSpeed, double minSpeed, double penalties, double speed) {
+    public static void saveCarDataToFirestore(String raceName, String carName, double x, double y, double angle, String color, double maxSpeed, double minSpeed, double penalties, double speed) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         // Dados do carro para serem salvos
@@ -32,62 +38,68 @@ public class Database {
         carData.put("speed", speed);
         carData.put("timestamp", Timestamp.now());
 
-        // Caminho da coleção e documento
+        // Primeiro adiciona um campo de timestamp no documento principal "raceName"
+        Map<String, Object> raceData = new HashMap<>();
+        raceData.put("timestamp", Timestamp.now());
+
         db.collection("raceLastStates")
-                .document()
-                .collection("cars")
-                .document()
-                .set(carData)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        // Dados salvos com sucesso
-                        Log.d("Firestore", "Car data successfully saved!");
-                    }
+                .document(raceName)
+                .set(raceData)  // Define o documento "raceName" com o campo timestamp
+                .addOnSuccessListener(aVoid -> {
+                    // Após adicionar o campo timestamp no documento, adiciona a subcoleção "cars"
+                    db.collection("raceLastStates")
+                            .document(raceName)
+                            .collection("cars")
+                            .document(carName)
+                            .set(carData)  // Cria o documento do carro com os dados fornecidos
+                            .addOnSuccessListener(bVoid -> {
+                                Log.d("Firestore", "Car data successfully saved!");
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.w("Firestore", "Error saving car data", e);
+                            });
                 })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        // Falha ao salvar os dados
-                        Log.w("Firestore", "Error saving car data", e);
-                    }
+                .addOnFailureListener(e -> {
+                    Log.w("Firestore", "Error setting race timestamp", e);
                 });
     }
 
-    // Interface de callback para retornar os dados
     public interface FirestoreCallback {
-        void onCallback(Map<String, Object> carData);
+        void onCallback(ArrayList<Map<String, Object>> carList);
     }
 
-    public static void getLastCarFromFirestore(FirestoreCallback callback) {
+    public static void getAllCarsFromLastRaceState(FirestoreCallback callback) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("raceLastStates")
-                .orderBy("timestamp", Query.Direction.DESCENDING)
-                .limit(1)
-                .get()
-                .addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                    @Override
-                    public void onSuccess(QuerySnapshot queryDocumentSnapshots) {
-                        if (!queryDocumentSnapshots.isEmpty()) {
-                            QueryDocumentSnapshot document = (QueryDocumentSnapshot) queryDocumentSnapshots.getDocuments().get(0);
-                            Map<String, Object> carData = document.getData();
-                            Log.d("Firestore", "Last car data: " + carData.toString());
+        ArrayList<Map<String, Object>> carList = new ArrayList<>();
 
-                            // Chama o callback com os dados
-                            callback.onCallback(carData);
-                        } else {
-                            Log.d("Firestore", "No car data found.");
-                            callback.onCallback(null); // Retorna null se não houver dados
-                        }
+        Log.d("Firestore", "Fetching documents in 'raceLastStates' collection...");
+
+        db.collection("raceLastStates")
+        .orderBy("timestamp", Query.Direction.DESCENDING)
+        .limit(1)
+        .get()
+        .addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                if (!task.getResult().isEmpty()) {
+                    for (QueryDocumentSnapshot document : task.getResult()) {
+                        db.collection("raceLastStates")
+                        .document(document.getId())
+                        .collection("cars")
+                        .get()
+                        .addOnCompleteListener(carsTask -> {
+                            if (carsTask.isSuccessful()) {
+                                if (!carsTask.getResult().isEmpty()) {
+                                    for (QueryDocumentSnapshot carDocument : carsTask.getResult()) {
+                                        carList.add(carDocument.getData());
+                                    }
+                                    callback.onCallback(carList);
+                                }
+                            }
+                        });
                     }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("Firestore", "Error fetching last car data", e);
-                        callback.onCallback(null); // Retorna null em caso de falha
-                    }
-                });
+                }
+            }
+        });
     }
 }

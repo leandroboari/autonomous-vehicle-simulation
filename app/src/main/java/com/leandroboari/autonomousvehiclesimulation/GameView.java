@@ -8,8 +8,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +57,7 @@ public class GameView extends SurfaceView implements Runnable {
 
     // Exibição de informações na interface
     private TextView textViewInfo;
+    private EditText inputCars;
 
     // Construtores para inicializar o GameView
     public GameView(Context context) {
@@ -69,16 +73,6 @@ public class GameView extends SurfaceView implements Runnable {
     // Inicialização do GameView
     public void init(Context context) {
         surfaceHolder = getHolder();
-
-        // Recupera dados do banco de dados
-        Database.getLastCarFromFirestore(carData -> {
-            if (carData != null) {
-                // Manipule o mapa de dados do carro aqui
-                Log.d("Firestore", "Car data received: " + carData.toString());
-            } else {
-                Log.d("Firestore", "No car data available or error occurred.");
-            }
-        });
 
         // Inicialização do tempo
         startTime = System.currentTimeMillis();
@@ -96,17 +90,36 @@ public class GameView extends SurfaceView implements Runnable {
                 402
         );
 
+        // Inicialização das listas
+        startingPositions = new ArrayList<>();
+        carPlaceholders = new ArrayList<>();
+        cars = new ArrayList<>();
+
         // Configuração das posições iniciais dos carros
         setupStartingPositions();
 
-        // Inicialização das listas
-        carPlaceholders = new ArrayList<>();
-        cars = new ArrayList<>();
+        // Recupera dados do banco de dados
+        Database.getAllCarsFromLastRaceState(carList -> {
+            if (carList != null) {
+                int i = 0;
+                for (Map<String, Object> car : carList) {
+                    startingPositions.get(i).setX(((Double) car.get("x")).floatValue());
+                    startingPositions.get(i).setY(((Double) car.get("y")).floatValue());
+                    startingPositions.get(i).setAngle(((Double) car.get("angle")).floatValue());
+                    startingPositions.get(i).setColor((String) car.get("color"));
+                    i++;
+                    Log.d("Firestore", "Car data: " + car);
+                }
+
+            } else {
+                Log.d("Firestore", "Failed to retrieve car data.");
+            }
+        });
     }
 
     // Define as posições iniciais dos carros
     private void setupStartingPositions() {
-        startingPositions = new ArrayList<>();
+        startingPositions.clear();
         startingPositions.add(new CarPosition(683, 381, -45, "#00DA62"));
         startingPositions.add(new CarPosition(700, 399, -45, "#0066DA"));
         startingPositions.add(new CarPosition(662, 401, -45, "#5B00DA"));
@@ -298,6 +311,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
             } else {
                 pauseStartTime = System.currentTimeMillis();
+                saveCarData();
             }
         } catch (Exception e) {
             e.printStackTrace(); // Log de erro no controle de pausa
@@ -319,8 +333,17 @@ public class GameView extends SurfaceView implements Runnable {
         return track.isCollision(x, y); // Usa a função de colisão da pista
     }
 
-    public void endGame() {
+    public void saveCarData() {
+        ZonedDateTime timestamp = ZonedDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HH-mm-ss");
+        String timestampString = timestamp.format(formatter);
+        String raceName = "race_" + timestampString;
+
+        int index = 0;
+
         for (Car car : cars) {
+            index++;
+            String carName = "car_" + index;
             double x = car.getX();
             double y = car.getY();
             double angle = car.getAngle();
@@ -329,9 +352,12 @@ public class GameView extends SurfaceView implements Runnable {
             double minSpeed = car.getMinSpeed();
             double penalties = car.getPenalties();
             double speed = car.getSpeed();
-            Database.saveCarDataToFirestore(x, y, angle, color, maxSpeed, minSpeed, penalties, speed);
+            Database.saveCarDataToFirestore(raceName, carName, x, y, angle, color, maxSpeed, minSpeed, penalties, speed);
         }
+    }
 
+    public void endGame() {
+        saveCarData();
 
         // Pausa o jogo antes de finalizar
         if(!this.isGamePaused()) {
