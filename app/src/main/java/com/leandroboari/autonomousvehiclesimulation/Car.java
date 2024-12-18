@@ -25,8 +25,8 @@ public class Car extends Thread {
     private float speed;
 
     // Velocidade mínima e máxima do carro
-    private final float minSpeed;
-    private final float maxSpeed;
+    private float minSpeed;
+    private float maxSpeed;
 
     // Distância máxima de detecção dos sensores
     private float detectionDistance;
@@ -79,8 +79,12 @@ public class Car extends Thread {
     // Controle para verificar se o carro cruzou a linha de chegada
     private boolean crossedLine = false;
 
-    private int lapDistance = 2909;
-    private int deadLine = 18;
+    int lapDistance = 2909;
+    int deadLine = 28;
+
+    long startTime; // Tempo de início da corrida
+    float expectedSpeed; // Velocidade esperada para cumprir o deadline
+    boolean isDelayed; // Indica se o carro está atrasado
 
     // Construtor do carro, inicializa as variáveis
     public Car(
@@ -132,6 +136,10 @@ public class Car extends Thread {
         // Define a largura e altura do carro com base no bitmap redimensionado
         carWidth = carBitmap.getWidth();
         carHeight = carBitmap.getHeight();
+
+        startTime = System.currentTimeMillis();
+        expectedSpeed = lapDistance / (float) deadLine; // Velocidade esperada (distância / tempo)
+        isDelayed = false;
 
 //        // Inicializa o Paint dos sensores com a cor vermelha
 //        sensorPaint = new Paint();
@@ -225,6 +233,37 @@ public class Car extends Thread {
 
         // Verifica se o carro cruzou a linha de chegada para contar voltas
         checkLap();
+
+        checkDeadline();
+    }
+
+    private void checkDeadline() {
+        long elapsedTime = (System.currentTimeMillis() - startTime) / 1000; // Tempo decorrido em segundos
+
+        // Progresso esperado com base na velocidade esperada
+        float expectedDistance = expectedSpeed * elapsedTime;
+
+        // Verifica se o carro está atrasado
+        if (totalDistanceMoved < expectedDistance) {
+            isDelayed = true;
+
+            if(maxSpeed <= 8 && minSpeed <= 5) {
+                minSpeed += 0.2;
+                maxSpeed += 0.2;
+            }
+        } else {
+            isDelayed = false;
+            if (maxSpeed > 4 && minSpeed > 1) {
+                minSpeed -= 0.2;
+                maxSpeed -= 0.2;
+            }
+
+        }
+
+        if (isDelayed) {
+            Log.d("ESCALONABILIDADE", "Carro atrasado: " + this.color + " | Progresso: "
+                    + totalDistanceMoved + " / " + expectedDistance + " | Tempo: " + elapsedTime + "s | Velocidade: " + speed);
+        }
     }
 
     // Ajusta a velocidade com base na rotação do carro (curvas desaceleram)
