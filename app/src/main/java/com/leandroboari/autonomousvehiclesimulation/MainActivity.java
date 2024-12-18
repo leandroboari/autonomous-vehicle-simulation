@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity {
                     int numCars = Integer.parseInt(carsInput);
 
                     // Validação do número de carros
-                    if (numCars == 0 || numCars > 8) {
-                        Toast.makeText(MainActivity.this, "Insira um número de 1 a 8.", Toast.LENGTH_SHORT).show();
+                    if (numCars == 0 || numCars > 20) {
+                        Toast.makeText(MainActivity.this, "Insira um número de 1 a 20.", Toast.LENGTH_SHORT).show();
                     } else if (gameView != null) {
                         // Cria os placeholders de carros com base no número fornecido
                         gameView.createCarPlaceholders(numCars);

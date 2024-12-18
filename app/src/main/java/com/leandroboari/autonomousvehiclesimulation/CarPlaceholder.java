@@ -27,7 +27,7 @@ public class CarPlaceholder {
         );
 
         // Redimensiona o carro
-        carBitmap = Bitmap.createScaledBitmap(originalBitmap, 20, 12, false);
+        carBitmap = Bitmap.createScaledBitmap(originalBitmap, 10, 6, false);
 
         carWidth = carBitmap.getWidth();
         carHeight = carBitmap.getHeight();

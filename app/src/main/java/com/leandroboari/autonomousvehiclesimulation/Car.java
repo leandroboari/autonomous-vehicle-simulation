@@ -8,6 +8,7 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.leandroboari.autonomousvehicle.PIDController;
 import com.leandroboari.autonomousvehicle.CarSensorUtils;
@@ -52,7 +53,7 @@ public class Car extends Thread {
     private final GameView gameView;
 
     // Paint utilizado para desenhar os sensores
-    private final Paint sensorPaint;
+//    private final Paint sensorPaint;
 
     // Controlador PID para ajustar a direção do carro
     private final PIDController steeringPIDController;
@@ -77,6 +78,9 @@ public class Car extends Thread {
 
     // Controle para verificar se o carro cruzou a linha de chegada
     private boolean crossedLine = false;
+
+    private int lapDistance = 2909;
+    private int deadLine = 18;
 
     // Construtor do carro, inicializa as variáveis
     public Car(
@@ -120,19 +124,19 @@ public class Car extends Thread {
                 R.drawable.carro
         );
 
-        // Redimensiona o bitmap do carro para 20x12 pixels
-        int newWidth = 20;
-        int newHeight = 12;
+        // Redimensiona o bitmap do carro para 10x6 pixels
+        int newWidth = 10;
+        int newHeight = 6;
         carBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, false);
 
         // Define a largura e altura do carro com base no bitmap redimensionado
         carWidth = carBitmap.getWidth();
         carHeight = carBitmap.getHeight();
 
-        // Inicializa o Paint dos sensores com a cor vermelha
-        sensorPaint = new Paint();
-        sensorPaint.setColor(Color.RED); // Cor dos sensores
-        sensorPaint.setStrokeWidth(1); // Espessura das linhas dos sensores
+//        // Inicializa o Paint dos sensores com a cor vermelha
+//        sensorPaint = new Paint();
+//        sensorPaint.setColor(Color.RED); // Cor dos sensores
+//        sensorPaint.setStrokeWidth(1); // Espessura das linhas dos sensores
     }
 
     // Função principal da thread do carro, que move o carro enquanto estiver rodando
@@ -213,6 +217,8 @@ public class Car extends Thread {
 
         // Aplica a correção ao ângulo do carro
         angle += correction;
+
+        Log.e("ARTHUR", String.valueOf(angle));
 
         // Ajusta a velocidade com base na correção da rotação (curvas ou retas)
         adjustSpeedBasedOnRotation(correction);
@@ -310,6 +316,7 @@ public class Car extends Thread {
                 if (!crossedLine) {
                     lapCount++; // Incrementa o contador de voltas
                     crossedLine = true; // Marca que o carro cruzou a linha
+                    Log.d("ARTHUR", "Distância: " + totalDistanceMoved);
                 }
             } else {
                 crossedLine = false; // Redefine o estado da linha de chegada
@@ -336,15 +343,15 @@ public class Car extends Thread {
         canvas.restore(); // Restaura o estado do canvas
 
         // Desenha os sensores do carro
-        for (int i = 0; i < sensorAngles.length; i++) {
-            float sensorAngle = angle + sensorAngles[i]; // Ângulo do sensor em relação ao carro
-            float radians = (float) Math.toRadians(sensorAngle);
-            float endX = x + sensorMap[i] * (float) Math.cos(radians); // Calcula a posição final X do sensor
-            float endY = y + sensorMap[i] * (float) Math.sin(radians); // Calcula a posição final Y do sensor
+//        for (int i = 0; i < sensorAngles.length; i++) {
+//            float sensorAngle = angle + sensorAngles[i]; // Ângulo do sensor em relação ao carro
+//            float radians = (float) Math.toRadians(sensorAngle);
+//            float endX = x + sensorMap[i] * (float) Math.cos(radians); // Calcula a posição final X do sensor
+//            float endY = y + sensorMap[i] * (float) Math.sin(radians); // Calcula a posição final Y do sensor
 
             // Desenha a linha do sensor no canvas
-            canvas.drawLine(x, y, endX, endY, sensorPaint);
-        }
+//            canvas.drawLine(x, y, endX, endY, sensorPaint);
+//        }
     }
 
     // Métodos getters para obter as informações do carro

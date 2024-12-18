@@ -98,36 +98,48 @@ public class GameView extends SurfaceView implements Runnable {
         // Configuração das posições iniciais dos carros
         setupStartingPositions();
 
-        // Recupera dados do banco de dados
-        Database.getAllCarsFromLastRaceState(carList -> {
-            if (carList != null) {
-                int i = 0;
-                for (Map<String, Object> car : carList) {
-                    startingPositions.get(i).setX(((Double) car.get("x")).floatValue());
-                    startingPositions.get(i).setY(((Double) car.get("y")).floatValue());
-                    startingPositions.get(i).setAngle(((Double) car.get("angle")).floatValue());
-                    startingPositions.get(i).setColor((String) car.get("color"));
-                    i++;
-                    Log.d("Firestore", "Car data: " + car);
-                }
-
-            } else {
-                Log.d("Firestore", "Failed to retrieve car data.");
-            }
-        });
+//        // Recupera dados do banco de dados
+//        Database.getAllCarsFromLastRaceState(carList -> {
+//            if (carList != null) {
+//                int i = 0;
+//                for (Map<String, Object> car : carList) {
+//                    startingPositions.get(i).setX(((Double) car.get("x")).floatValue());
+//                    startingPositions.get(i).setY(((Double) car.get("y")).floatValue());
+//                    startingPositions.get(i).setAngle(((Double) car.get("angle")).floatValue());
+//                    startingPositions.get(i).setColor((String) car.get("color"));
+//                    i++;
+//                    Log.d("Firestore", "Car data: " + car);
+//                }
+//
+//            } else {
+//                Log.d("Firestore", "Failed to retrieve car data.");
+//            }
+//        });
     }
 
     // Define as posições iniciais dos carros
     private void setupStartingPositions() {
         startingPositions.clear();
-        startingPositions.add(new CarPosition(683, 381, -45, "#00DA62"));
-        startingPositions.add(new CarPosition(700, 399, -45, "#0066DA"));
-        startingPositions.add(new CarPosition(662, 401, -45, "#5B00DA"));
-        startingPositions.add(new CarPosition(679, 420, -45, "#DA00BD"));
-        startingPositions.add(new CarPosition(635, 422, -45, "#DA0004"));
-        startingPositions.add(new CarPosition(652, 440, -45, "#DA9500"));
-        startingPositions.add(new CarPosition(608, 444, -45, "#FFA600"));
-        startingPositions.add(new CarPosition(623, 464, -45, "#A0DA00"));
+        startingPositions.add(new CarPosition(683, 381, -45, "#00DA62")); // Verde
+        startingPositions.add(new CarPosition(700, 399, -45, "#0066DA")); // Azul
+        startingPositions.add(new CarPosition(662, 401, -45, "#5B00DA")); // Roxo
+        startingPositions.add(new CarPosition(679, 420, -45, "#DA00BD")); // Magenta
+        startingPositions.add(new CarPosition(635, 422, -45, "#DA0004")); // Vermelho
+        startingPositions.add(new CarPosition(652, 440, -45, "#DA9500")); // Laranja escuro
+        startingPositions.add(new CarPosition(608, 444, -45, "#FFA600")); // Laranja
+        startingPositions.add(new CarPosition(623, 464, -45, "#A0DA00")); // Verde claro
+        startingPositions.add(new CarPosition(581, 464, -45, "#00CFCF")); // Ciano
+        startingPositions.add(new CarPosition(596, 484, -45, "#DA5B00")); // Laranja queimado
+        startingPositions.add(new CarPosition(555, 482, -45, "#0094DA")); // Azul claro
+        startingPositions.add(new CarPosition(570, 502, -45, "#8E44AD")); // Roxo médio
+        startingPositions.add(new CarPosition(526, 500, -45, "#2ECC71")); // Verde esmeralda
+        startingPositions.add(new CarPosition(541, 520, -45, "#E67E22")); // Laranja escuro (alternativo)
+        startingPositions.add(new CarPosition(498, 518, -45, "#34495E")); // Azul acinzentado
+        startingPositions.add(new CarPosition(509, 541, -45, "#1ABC9C")); // Turquesa
+        startingPositions.add(new CarPosition(467, 532, -45, "#F39C12")); // Amarelo mostarda
+        startingPositions.add(new CarPosition(476, 555, -45, "#9B59B6")); // Roxo pastel
+        startingPositions.add(new CarPosition(438, 539, -45, "#C0392B")); // Vermelho escuro
+        startingPositions.add(new CarPosition(440, 564, -45, "#27AE60")); // Verde profundo
     }
 
     // Cria placeholders para os carros
@@ -179,35 +191,48 @@ public class GameView extends SurfaceView implements Runnable {
     @Override
     public void run() {
         while (running) {
-            if (surfaceHolder.getSurface().isValid()) {
-                try {
-                    if (!gamePaused) {
-                        updateFPS();
+            Canvas canvas = null; // Defina o canvas fora do try-catch
+            try {
+                if (!surfaceHolder.getSurface().isValid()) {
+                    continue; // Pule o loop se a superfície não estiver válida
+                }
+
+                if (!gamePaused) {
+                    updateFPS();
+                }
+
+                // Bloqueia o canvas para desenhar
+                canvas = surfaceHolder.lockCanvas();
+                if (canvas != null) {
+                    canvas.drawRGB(255, 255, 255); // Fundo branco
+                    track.draw(canvas);
+
+                    if (showPlaceholders) {
+                        for (CarPlaceholder placeholder : carPlaceholders) {
+                            placeholder.draw(canvas);
+                        }
                     }
 
-                    Canvas canvas = surfaceHolder.lockCanvas();
-                    if (canvas != null) {
-                        canvas.drawRGB(255, 255, 255); // Fundo branco
-                        track.draw(canvas);
-
-                        if (showPlaceholders) {
-                            for (CarPlaceholder placeholder : carPlaceholders) {
-                                placeholder.draw(canvas);
-                            }
-                        }
-
-                        for (Car car : cars) {
-                            car.draw(canvas);
-                        }
-                        drawInfo(canvas);
-                        surfaceHolder.unlockCanvasAndPost(canvas); // Finaliza o desenho
+                    for (Car car : cars) {
+                        car.draw(canvas);
                     }
-                } catch (Exception e) {
-                    e.printStackTrace(); // Log da exceção de desenho
+                    drawInfo(canvas);
+                }
+            } catch (Exception e) {
+                Log.e("GameView", "Erro ao desenhar no canvas: ", e);
+            } finally {
+                if (canvas != null) {
+                    try {
+                        // Garante que o canvas seja sempre desbloqueado
+                        surfaceHolder.unlockCanvasAndPost(canvas);
+                    } catch (Exception e) {
+                        Log.e("GameView", "Erro ao desbloquear canvas: ", e);
+                    }
                 }
             }
         }
     }
+
 
     // Atualiza a taxa de frames por segundo
     private void updateFPS() {
@@ -311,7 +336,7 @@ public class GameView extends SurfaceView implements Runnable {
                 }
             } else {
                 pauseStartTime = System.currentTimeMillis();
-                saveCarData();
+//                saveCarData();
             }
         } catch (Exception e) {
             e.printStackTrace(); // Log de erro no controle de pausa
@@ -357,7 +382,7 @@ public class GameView extends SurfaceView implements Runnable {
     }
 
     public void endGame() {
-        saveCarData();
+//        saveCarData();
 
         // Pausa o jogo antes de finalizar
         if(!this.isGamePaused()) {
